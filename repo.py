@@ -3,7 +3,6 @@ import os
 import telebot
 import json
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-from flask import Flask
 from threading import Thread
 import logging
 import time
@@ -16,24 +15,6 @@ bot = telebot.TeleBot(BOT_TOKEN)
 
 # File to save approved users and their tokens
 TOKEN_FILE = "approved_users.json"
-
-# Flask app for health check
-app = Flask(__name__)
-
-@app.route('/health', methods=['GET'])
-def health():
-    return "OK", 200
-
-# Load tokens from file if they exist
-def load_approved_users():
-    try:
-        if os.path.exists(TOKEN_FILE):
-            with open(TOKEN_FILE, 'r') as file:
-                return json.load(file)
-        return {}
-    except Exception as e:
-        logging.error(f"Failed to load approved users: {e}")
-        return {}
 
 # Save approved users and their tokens to a file
 def save_approved_users():
@@ -201,12 +182,6 @@ def handle_callback_query(call):
             bot.send_message(call.message.chat.id, f"Failed To Download Repository😖 {repo_full_name}.")
     except Exception as e:
         logging.error(f"Error handling callback query: {e}")
-
-# Start the Flask app in a separate thread
-def run_flask():
-    app.run(host='0.0.0.0', port=10001)
-
-Thread(target=run_flask).start()
 
 # Main loop to handle polling
 if __name__ == "__main__":
